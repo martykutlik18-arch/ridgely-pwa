@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About — Ridgely Wines & Spirits</title>
+
+    <link rel="stylesheet" href="style.css?v=20260721">
+    <link rel="manifest" href="manifest.json">
+
+    <meta name="theme-color" content="#8b0000">
+</head>
+
+<body>
+
+<script>
+// Ensure any existing service worker is unregistered so the site always
+// loads the newest files. This runs once per session and then reloads.
+if ('serviceWorker' in navigator && !sessionStorage.getItem('sw_unregistered')) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+        return Promise.all(regs.map(r => r.unregister()));
+    }).then(() => {
+        if (window.caches) {
+            return caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))));
+        }
+    }).then(() => {
+        sessionStorage.setItem('sw_unregistered', '1');
+        window.location.reload(true);
+    }).catch(() => {
+        // ignore errors
+    });
+}
+</script>
+
+<header id="home">
+
+    <nav class="site-nav">
+        <button
+            class="menu-toggle"
+            id="menu-toggle"
+            type="button"
+            aria-label="Open navigation menu"
+            aria-expanded="false"
+            aria-controls="nav-menu"
+        >
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <div class="nav-menu" id="nav-menu">
+            <a href="index.html#home">Home</a>
+            <a href="about.html">About</a>
+            <a href="index.html#super-sale">Super Sale</a>
+            <a href="index.html#contact">Contact</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Ridgely Wines & Spirits</h1>
+
+        <p class="subtitle">
+            Serving Lutherville Timonium for Nearly 40 Years
+        </p>
+    </div>
+
+</header>
+
+<main>
+    <section id="about">
+        <h2>Welcome to Ridgely Wines & Spirits</h2>
+
+        <p>
+            Located in the heart of Lutherville-Timonium,
+            Ridgely Wines & Spirits offers an outstanding
+            selection of fine wines, premium spirits, craft
+            beer, monthly Super Sale specials, and friendly
+            neighborhood service.
+        </p>
+    </section>
+</main>
+
+<footer id="contact">
+    <h3>Ridgely Wines & Spirits</h3>
+
+    <p>
+        Home of the Super Sale
+    </p>
+
+    <p>
+        1752 York Road, Lutherville, Maryland
+    </p>
+
+    <p>
+        <a href="tel:+14102521724">
+            (410) 252-1724
+        </a>
+    </p>
+
+    <p>
+        Proudly Serving Lutherville • Timonium
+    </p>
+</footer>
+
+<script>
+    const menuToggle =
+        document.getElementById("menu-toggle");
+
+    const navMenu =
+        document.getElementById("nav-menu");
+
+    if (menuToggle && navMenu) {
+        menuToggle.addEventListener("click", () => {
+            const menuIsOpen =
+                navMenu.classList.toggle("open");
+
+            menuToggle.classList.toggle(
+                "active",
+                menuIsOpen
+            );
+
+            menuToggle.setAttribute(
+                "aria-expanded",
+                String(menuIsOpen)
+            );
+        });
+
+        navMenu.querySelectorAll("a").forEach((link) => {
+            link.addEventListener("click", () => {
+                navMenu.classList.remove("open");
+                menuToggle.classList.remove("active");
+
+                menuToggle.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+            });
+        });
+
+        document.addEventListener("click", (event) => {
+            const clickedInsideNavigation =
+                menuToggle.contains(event.target) ||
+                navMenu.contains(event.target);
+
+            if (!clickedInsideNavigation) {
+                navMenu.classList.remove("open");
+                menuToggle.classList.remove("active");
+
+                menuToggle.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                navMenu.classList.remove("open");
+                menuToggle.classList.remove("active");
+
+                menuToggle.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+                menuToggle.focus();
+            }
+        });
+    }
+
+    // Service worker registration removed to ensure latest assets load.
+</script>
+
+</body>
+</html>
