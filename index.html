@@ -11,7 +11,7 @@
     <title>Ridgely Wines & Spirits</title>
 
     <link rel="stylesheet" href="style.css?v=20260721">
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/ridgely-pwa/manifest.json">
 
     <meta name="theme-color" content="#8b0000">
 </head>
@@ -50,6 +50,25 @@
         <p class="subtitle">
             Serving Lutherville Timonium for Nearly 40 Years
         </p>
+
+        <div class="hero-actions" style="margin-top: 24px;">
+            <button
+                class="install-button"
+                id="install-button"
+                type="button"
+                style="display: inline-block;"
+            >
+                Install Our App
+            </button>
+
+            <p
+                class="install-instructions"
+                id="install-instructions"
+                style="display: none;"
+            >
+                Open this website in Safari, tap the Share button, then tap Add to Home Screen.
+            </p>
+        </div>
     </div>
 
 </header>
@@ -257,6 +276,122 @@
     const navMenu =
         document.getElementById("nav-menu");
 
+    const installButton =
+        document.getElementById("install-button");
+
+    const installInstructions =
+        document.getElementById("install-instructions");
+
+    let deferredPrompt = null;
+
+    const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true;
+
+    const userAgent = navigator.userAgent || "";
+    const isIOS = /iphone|ipad|ipod/i.test(userAgent);
+    const isAndroidChromium = /android/i.test(userAgent) && /(chrome|crios|edg|opr)\//i.test(userAgent);
+
+    function setInstallUiState() {
+        if (isStandalone) {
+            if (installButton) installButton.hidden = true;
+            if (installInstructions) installInstructions.hidden = true;
+            return;
+        }
+
+        if (isIOS) {
+            if (installButton) installButton.hidden = false;
+            if (installInstructions) installInstructions.hidden = false;
+            return;
+        }
+
+        if (installButton) installButton.hidden = false;
+        if (installInstructions) installInstructions.hidden = true;
+    }
+
+    function showInstallButton() {
+        if (isStandalone) {
+            return;
+        }
+
+        if (installButton) {
+            installButton.hidden = false;
+        }
+
+        if (installInstructions) {
+            installInstructions.hidden = true;
+        }
+    }
+
+    if (!window.isSecureContext && window.location.protocol !== "https:") {
+        console.warn("Install prompt is unavailable because this page is not running in a secure context.");
+    }
+
+    fetch(new URL("manifest.json", window.location.href), { cache: "no-store" })
+        .then((response) => {
+            console.log("Manifest check status:", response.status);
+        })
+        .catch((error) => {
+            console.warn("Manifest check failed:", error);
+        });
+
+    window.addEventListener("beforeinstallprompt", (event) => {
+        event.preventDefault();
+        deferredPrompt = event;
+
+        if (!isIOS && !isStandalone) {
+            showInstallButton();
+        }
+    });
+
+    window.addEventListener("appinstalled", () => {
+        deferredPrompt = null;
+
+        if (installButton) {
+            installButton.hidden = true;
+        }
+
+        if (installInstructions) {
+            installInstructions.hidden = true;
+        }
+    });
+
+    if (installButton) {
+        installButton.addEventListener("click", async () => {
+            if (isIOS) {
+                if (installInstructions) {
+                    installInstructions.hidden = false;
+                }
+
+                return;
+            }
+
+            if (!deferredPrompt) {
+                return;
+            }
+
+            installButton.disabled = true;
+            installButton.textContent = "Opening installer…";
+
+            try {
+                const choiceResult = await deferredPrompt.prompt();
+
+                if (choiceResult && choiceResult.outcome === "accepted") {
+                    installButton.hidden = true;
+                    installInstructions.hidden = true;
+                }
+            } catch (error) {
+                console.warn("Install prompt failed:", error);
+            } finally {
+                deferredPrompt = null;
+                installButton.disabled = false;
+                installButton.textContent = "Install Our App";
+            }
+        });
+    }
+
+    setInstallUiState();
+
     if (menuToggle && navMenu) {
         menuToggle.addEventListener("click", () => {
             const menuIsOpen =
@@ -319,12 +454,13 @@
     // Register service worker for offline support and caching
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
-            navigator.serviceWorker.register('/service-worker.js')
+            const serviceWorkerUrl = new URL('service-worker.js', window.location.href);
+
+            navigator.serviceWorker.register(serviceWorkerUrl.pathname)
                 .then(reg => {
                     console.log('Service Worker registered:', reg);
-                    // Optionally check for updates
+
                     if (reg.waiting) {
-                        // In many SW setups you might message the SW to skipWaiting
                         try { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch (e) {}
                     }
                 })

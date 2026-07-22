@@ -2,19 +2,19 @@
   "name": "Ridgely Wines & Spirits",
   "short_name": "Ridgely",
   "description": "Direct access to the Ridgely Wines & Spirits website.",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/ridgely-pwa/",
+  "scope": "/ridgely-pwa/",
   "display": "standalone",
   "background_color": "#f5f1e8",
   "theme_color": "#8b0000",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "/ridgely-pwa/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "/ridgely-pwa/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

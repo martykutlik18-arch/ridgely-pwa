@@ -1,17 +1,18 @@
-const CACHE_NAME = "ridgely-v10";
+const BASE_PATH = "/ridgely-pwa";
+const CACHE_NAME = "ridgely-v11";
 
 const FILES_TO_CACHE = [
-    "/",
-    "/index.html",
-    "/style.css?v=20260721",
-    "/manifest.json",
-    "/icons/icon-192.png",
-    "/icons/icon-512.png",
-    "/offline.html",
-    "/images/august-super-sale.png?v=20260721",
-    "/images/image.jpg?v=20260721",
-    "/images/image-2.jpg?v=20260721",
-    "/images/image-4.jpg?v=20260721"
+    `${BASE_PATH}/`,
+    `${BASE_PATH}/index.html`,
+    `${BASE_PATH}/style.css?v=20260721`,
+    `${BASE_PATH}/manifest.json`,
+    `${BASE_PATH}/icons/icon-192.png`,
+    `${BASE_PATH}/icons/icon-512.png`,
+    `${BASE_PATH}/offline.html`,
+    `${BASE_PATH}/images/august-super-sale.png?v=20260721`,
+    `${BASE_PATH}/images/image.jpg?v=20260721`,
+    `${BASE_PATH}/images/image-2.jpg?v=20260721`,
+    `${BASE_PATH}/images/image-4.jpg?v=20260721`
 ];
 
 self.addEventListener("install", event => {
@@ -74,7 +75,7 @@ self.addEventListener("fetch", event => {
                                 return cachedResponse;
                             }
 
-                            return caches.match("/offline.html");
+                            return caches.match(`${BASE_PATH}/offline.html`);
                         });
                 })
         );
