@@ -61,13 +61,27 @@
                 Install Our App
             </button>
 
-            <p
-                class="install-instructions"
-                id="install-instructions"
-                style="display: none;"
-            >
-                Open this website in Safari, tap the Share button, then tap Add to Home Screen.
-            </p>
+            <div class="ios-modal" id="ios-modal" aria-hidden="true">
+                <div class="ios-modal-backdrop" id="ios-modal-backdrop"></div>
+
+                <div class="ios-modal-content" role="dialog" aria-modal="true" aria-labelledby="ios-modal-title">
+                    <h3 id="ios-modal-title">Install on iPhone or iPad</h3>
+
+                    <ol>
+                        <li>Open this page in Safari (use the Share button).</li>
+                        <li>Tap the Share icon (the square with an up arrow).</li>
+                        <li>Choose "Add to Home Screen" and confirm.</li>
+                    </ol>
+
+                    <p class="muted">If you are not in Safari, copy the link and open it in Safari first.</p>
+
+                    <div class="ios-modal-actions">
+                        <button id="copy-link-button" class="button">Copy Link</button>
+                        <a id="open-safari-link" class="button" href="#" target="_blank" rel="noopener">Open in Safari</a>
+                        <button id="ios-modal-close" class="button">Close</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -359,10 +373,47 @@
     if (installButton) {
         installButton.addEventListener("click", async () => {
             if (isIOS) {
-                if (installInstructions) {
-                    installInstructions.hidden = false;
+                // Show an iOS-specific modal with step-by-step instructions
+                const iosModal = document.getElementById('ios-modal');
+                const iosBackdrop = document.getElementById('ios-modal-backdrop');
+                const copyBtn = document.getElementById('copy-link-button');
+                const closeBtn = document.getElementById('ios-modal-close');
+                const openSafariLink = document.getElementById('open-safari-link');
+
+                if (openSafariLink) openSafariLink.href = window.location.href;
+
+                function showIosModal() {
+                    if (iosModal) {
+                        iosModal.setAttribute('aria-hidden', 'false');
+                        iosModal.style.display = 'block';
+                        iosBackdrop.style.display = 'block';
+                    }
                 }
 
+                function hideIosModal() {
+                    if (iosModal) {
+                        iosModal.setAttribute('aria-hidden', 'true');
+                        iosModal.style.display = 'none';
+                        iosBackdrop.style.display = 'none';
+                    }
+                }
+
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', async () => {
+                        try {
+                            await navigator.clipboard.writeText(window.location.href);
+                            copyBtn.textContent = 'Link copied';
+                            setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 2000);
+                        } catch (err) {
+                            console.warn('Copy failed', err);
+                        }
+                    });
+                }
+
+                if (closeBtn) closeBtn.addEventListener('click', hideIosModal);
+                if (iosBackdrop) iosBackdrop.addEventListener('click', hideIosModal);
+
+                showIosModal();
                 return;
             }
 
